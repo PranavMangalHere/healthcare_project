@@ -15,6 +15,7 @@ const storage = multer.diskStorage({
         cb(null, file.fieldname + uniqueSuffix + path.extname(file.originalname))
     }
 })
+
 const upload = multer({storage: storage})
 var hbs = require("hbs");
 hbs.registerPartials(__dirname + '/views/partials',
@@ -62,14 +63,29 @@ app.get("/alluser",(req,res)=>{
         ]
     })
 })
+// app.get('/uploads', (req, res)=>{
 
+// })
+let imageUrls = [];
 
-app.post('/profile', upload.single('avatar'),  (req,res,next)=>{
+// Profile upload route
+app.post('/profile', upload.single('avatar'), (req, res, next) => {
     console.log(req.body);
     console.log(req.file);
-    // res.send("file uploaded successfully");
-    return res.redirect("/home");
-})
+
+    const fileName = req.file.filename;
+    const imageUrl = `/uploads/${fileName}`; // The path where the image can be accessed
+
+    imageUrls.push(imageUrl); // Store the image URL in the global array
+
+    // Redirect to display all uploaded images
+    return res.redirect("/allimages");
+});
+
+// Route to render all uploaded images
+app.get("/allimages", (req, res) => {
+    res.render("images", { imageUrls: imageUrls }); // Send imageUrls to the 'images' view
+});
 
 
 
